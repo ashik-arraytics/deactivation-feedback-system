@@ -1,69 +1,64 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+// import React from 'react';
+// import { createRoot } from 'react-dom/client';
 import DeactivationModal from './components/DeactivationModal/DeactivationModal';
+import useDeactivationModal from './hooks/useDeactivationFeedback';
 
 // Utility function to initialize the deactivation feedback system
-const initDeactivationFeedback = ({
-  selector = '.deactivate-plugin',
-  pluginName,
-  onFeedbackSubmit,
-  modalConfig = {}
-} = {}) => {
-  // Create container for modal
-  const modalContainer = document.createElement('div');
-  modalContainer.id = 'wp-deactivation-feedback-modal';
-  document.body.appendChild(modalContainer);
+// const initDeactivationFeedback = ({
+//   pluginName,
+//   onFeedbackSubmit,
+//   modalConfig = {}
+// } = {}) => {
+//   // Create container for modal
+//   const modalContainer = document.createElement('div');
+//   modalContainer.id = 'wp-deactivation-feedback-modal';
+//   document.body.appendChild(modalContainer);
 
-  const root = createRoot(modalContainer);
+//   const root = createRoot(modalContainer);
 
-  // Find all deactivate links matching the selector
-  const deactivateLinks = document.querySelectorAll(selector);
+//   const ModalWrapper = () => {
+//     const { isModalVisible, closeModal, deactivationUrl } = useDeactivationModal({
+//       pluginName,
+//       onDeactivationClick: () => {}
+//     });
 
-  deactivateLinks.forEach(link => {
-    const originalHref = link.getAttribute('href');
+//     const handleSubmit = async (feedbackData) => {
+//       try {
+//         if (onFeedbackSubmit) {
+//           await onFeedbackSubmit(feedbackData);
+//         }
+//         // Proceed with plugin deactivation
+//         if (deactivationUrl) {
+//           window.location.href = deactivationUrl;
+//         }
+//       } catch (error) {
+//         console.error('Error submitting feedback:', error);
+//         // Still proceed with deactivation even if feedback submission fails
+//         if (deactivationUrl) {
+//           window.location.href = deactivationUrl;
+//         }
+//       }
+//     };
 
-    link.addEventListener('click', async (e) => {
-      e.preventDefault();
+//     return (
+//       <DeactivationModal
+//         isOpen={isModalVisible}
+//         onClose={closeModal}
+//         onSubmit={handleSubmit}
+//         pluginName={pluginName}
+//         {...modalConfig}
+//       />
+//     );
+//   };
 
-      let isModalOpen = true;
+//   root.render(<ModalWrapper />);
 
-      const handleClose = () => {
-        isModalOpen = false;
-        root.render(
-          <DeactivationModal
-            isOpen={false}
-            onClose={handleClose}
-            pluginName={pluginName}
-            {...modalConfig}
-          />
-        );
-      };
+//   // Cleanup function
+//   return () => {
+//     if (modalContainer && modalContainer.parentNode) {
+//       modalContainer.parentNode.removeChild(modalContainer);
+//     }
+//   };
+// };
 
-      const handleSubmit = async (feedbackData) => {
-        try {
-          if (onFeedbackSubmit) {
-            await onFeedbackSubmit(feedbackData);
-          }
-          // Proceed with plugin deactivation
-          window.location.href = originalHref;
-        } catch (error) {
-          console.error('Error submitting feedback:', error);
-          // Still proceed with deactivation even if feedback submission fails
-          window.location.href = originalHref;
-        }
-      };
-
-      root.render(
-        <DeactivationModal
-          isOpen={isModalOpen}
-          onClose={handleClose}
-          onSubmit={handleSubmit}
-          pluginName={pluginName}
-          {...modalConfig}
-        />
-      );
-    });
-  });
-};
-
-export { DeactivationModal, initDeactivationFeedback };
+export { DeactivationModal , useDeactivationModal};

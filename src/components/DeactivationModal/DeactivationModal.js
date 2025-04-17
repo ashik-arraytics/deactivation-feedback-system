@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Input, Button, Space } from 'antd';
 import { FrownOutlined, SearchOutlined, AppstoreOutlined, StopOutlined, EyeOutlined, ExclamationCircleOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+
 import './DeactivationModal.scss';
 
 const { TextArea } = Input;
@@ -16,7 +17,7 @@ const defaultFeedbackOptions = [
     key: 'better_plugin',
     icon: <SearchOutlined />,
     text: 'Found a better plugin',
-    placeholder: 'Would you mind sharing which plugin you found? This helps us improve.'
+    placeholder: 'Which plugin?'
   },
   {
     key: 'missing_feature',
@@ -34,13 +35,13 @@ const defaultFeedbackOptions = [
     key: 'not_expected',
     icon: <EyeOutlined />,
     text: 'Not what I was looking',
-    placeholder: 'What were you expecting to find? Your feedback helps us improve our product description.'
+    placeholder: 'Would you elaborate your need to assist you?'
   },
   {
     key: 'didnt_work',
-    icon: <InfoCircleOutlined />,
+    icon: <ExclamationCircleOutlined />,
     text: "Didn't work as expected",
-    placeholder: 'How did you expect it to work? This helps us understand your needs better.'
+    placeholder: 'Would you like to share your expectations?'
   },
   {
     key: 'other',
@@ -53,8 +54,7 @@ const defaultFeedbackOptions = [
 const DeactivationModal = ({
   isOpen,
   onClose,
-  onSubmit,
-  pluginName = 'the plugin',
+  pluginName,
   title = 'If you have a moment, please let us know how we can improve.',
   submitButtonText = 'Submit & Deactivate',
   cancelButtonText = 'Cancel',
@@ -72,14 +72,20 @@ const DeactivationModal = ({
   const [feedback, setFeedback] = useState('');
 
   const handleSubmit = async () => {
-    if (onSubmit) {
-      await onSubmit({
-        reason: selectedReason,
-        feedback,
-      });
+    const payload= {
+      reason: selectedReason,
+      feedback,
+      pluginName: pluginName || window?.plugin_name
     }
+    // call the api function here..
+    await handleSendData(payload);
     onClose();
   };
+
+  // submit api function 
+  const handleSendData = async (data)=>{
+    console.log("API Function called", data);
+  }
 
   const currentPlaceholder = feedbackOptions.find(option => option.key === selectedReason)?.placeholder || '';
 
@@ -100,7 +106,7 @@ const DeactivationModal = ({
             onClick={() => setSelectedReason(option.key)}
           >
             {option.icon}
-           <p> {option.text}</p>
+            <p> {option.text}</p>
           </div>
         ))}
       </div>
@@ -112,24 +118,27 @@ const DeactivationModal = ({
           placeholder={currentPlaceholder}
           rows={4}
           className="feedback-textarea"
+          autoSize={{ minRows: 4, maxRows: 6 }}
         />
       )}
 
-      <div className="privacy-notice">
+      {/* <div className="privacy-notice">
         {privacyText} <a href={privacyLink} target="_blank" rel="noopener noreferrer">{privacyLinkText}</a>
-      </div>
+      </div> */}
 
       <div className="modal-footer">
-        <Button onClick={onClose}>{cancelButtonText}</Button>
-        <Button onClick={handleSubmit} type="text">{skipButtonText}</Button>
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          disabled={!selectedReason}
-          style={{ backgroundColor: theme.primaryColor }}
-        >
-          {submitButtonText}
-        </Button>
+        <Button onClick={onClose} aria-label={cancelButtonText}>{cancelButtonText}</Button>
+        <Space>
+          <Button onClick={handleSubmit} type="text" aria-label={submitButtonText}>{skipButtonText}</Button>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            style={{ backgroundColor: theme.primaryColor }}
+            aria-label={submitButtonText}
+          >
+            {submitButtonText}
+          </Button>
+        </Space>
       </div>
     </Modal>
   );
